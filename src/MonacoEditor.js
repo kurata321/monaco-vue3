@@ -1,11 +1,12 @@
 import assign from 'nano-assign'
+import { h } from 'vue'
 
 export default {
   name: 'MonacoEditor',
 
   props: {
     original: String,
-    value: {
+    modelValue: {
       type: String,
       required: true
     },
@@ -39,7 +40,7 @@ export default {
       }
     },
 
-    value(newValue) {
+    modelValue(newValue) {
       if (this.editor) {
         const editor = this.getModifiedEditor()
         if (newValue !== editor.getValue()) {
@@ -86,7 +87,7 @@ export default {
     }
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     this.editor && this.editor.dispose()
   },
 
@@ -96,7 +97,7 @@ export default {
 
       const options = assign(
         {
-          value: this.value,
+          value: this.modelValue,
           theme: this.theme,
           language: this.language
         },
@@ -110,7 +111,7 @@ export default {
           this.language
         )
         const modifiedModel = monaco.editor.createModel(
-          this.value,
+          this.modelValue,
           this.language
         )
         this.editor.setModel({
@@ -125,21 +126,12 @@ export default {
       const editor = this.getModifiedEditor()
       editor.onDidChangeModelContent(event => {
         const value = editor.getValue()
-        if (this.value !== value) {
+        if (this.modelValue !== value) {
           this.$emit('change', value, event)
         }
       })
 
       this.$emit('editorDidMount', this.editor)
-    },
-
-    /** @deprecated */
-    getMonaco() {
-      return this.editor
-    },
-
-    getEditor() {
-      return this.editor
     },
 
     getModifiedEditor() {
@@ -155,7 +147,7 @@ export default {
     }
   },
 
-  render(h) {
+  render() {
     return h('div')
   }
 }
